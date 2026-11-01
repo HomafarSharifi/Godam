@@ -1,0 +1,120 @@
+# Godam UI/UX design specification
+
+## Evidence and confidence
+
+- **Source:** [Godam UI/UX Figma page](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=318-177), file key `FjVF7z4opM9ZCHGsTVMFmU`, page node `318:177`.
+- The supplied node is a **PAGE**, not a single screen. Its overview screenshot and immediate child hierarchy were retrieved. Child frames were queried individually with `get_design_context` where available.
+- **Verified** means returned by Figma frame hierarchy or design-context metadata/code. **Visual estimate** means observed in the overview or inferred from a static render. **Unknown** means unavailable or not established by the design evidence.
+- Figma returned context for 14 of the 16 listed children. Context for `3_Onboard` timed out and a retry, plus `07 New_item`, hit the Figma MCP Starter-plan call limit. Prototype/component metadata inspection was also blocked. The page overview was visually reviewed; individual frame screenshot comparison remains outstanding.
+- Figma context contains temporary asset URLs. They are not durable source references and must not be used as runtime Flutter asset paths.
+
+## Screen inventory
+
+Every screen frame below is 393 × 852 except `02 Home` at 393 × 1039. The Loading component set is 213 × 140. These are Figma frame dimensions; whether they correspond to Flutter logical pixels or represent the supported device size is unknown.
+
+### Entry screens
+
+- [01 Splash Screen — `318:200`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=318-200). App name/tagline, decorative pattern and a Loading progress component. Context returned.
+
+#### Splash implementation reference (`318:200`)
+
+- **Verified from the previously retrieved frame context:** frame is 393 × 852; background `#FBFAF6`; the wordmark `گدام` is Kalameh SemiBold 32 px in `#1C1A15`; subtitle `مدیریت هوشمند گدام(انبار) و دکان` is Kalameh Light 12 px in the same color, with a 4 px text gap. The centered text group begins at y=402.
+- **Verified asset references:** `pattern 1` node `339:1767` (329.091 × 333.934), `Ellipse3` node `341:1927` (276 × 276), and Loading component set node `333:432`; its Default variant is node `333:428` (173 × 4) at x-centered, y=465. The other variants are `333:433`, `333:436`, `333:445`, `333:448`.
+- **Downloaded exports in this repository:** [`pattern-1.svg`](../assets/figma/splash/pattern-1.svg), [`ellipse-3.svg`](../assets/figma/splash/ellipse-3.svg), [`loading-default.svg`](../assets/figma/splash/loading-default.svg). The exports came from temporary Figma MCP asset URLs and are local implementation inputs, not durable Figma links.
+- **Available implementation fonts:** the repository now contains the Kalameh family. Flutter registers `Kalameh-Light.ttf` at weight 300 and `Kalameh-SemiBold.ttf` at weight 600 from `assets/fonts/Kalameh/01- Standard Fonts/TTF/`, matching the Splash subtitle and wordmark styles. The repository also contains the font license documents; confirm project distribution rights before shipping the app.
+- **Loading implementation:** the original Figma Loading component set is documented above, but the Splash uses `AppleLinearProgress` from `lib/widgets/apple_linear_progress.dart` instead of rendering its Default SVG variant. It occupies a centered 173 × 6 slot below the text and takes its fill color from the app theme's primary color. If the caller supplies a startup `Future<void>`, it remains visible while pending and disappears when complete; with no future, it runs by default.
+- **Screenshot verification:** the exact-frame screenshot endpoint could not be queried again during implementation because of the Figma MCP Starter-plan request limit. The screen is positioned from the prior frame context and has not been runtime-compared against an exact frame screenshot.
+- **Unknown:** Splash destination/navigation and system-bar safe-area behavior are not established by the retrieved frame context. The custom loading animation and optional pending-future behavior follow the user's implementation instruction, not a verified prototype interaction.
+- [1_Onboard — `333:458`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=333-458). Introductory warehouse/sales message, illustration and arrow controls. Context returned.
+- [2_Onboard — `344:1939`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=344-1939). Profit/expense explanation, illustration and onboarding controls. Context returned.
+- [3_Onboard — `344:2011`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=344-2011). Third onboarding screen visible in the overview. Detailed copy, assets and layout need reinspection.
+- [Register — `345:2117`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=345-2117). Welcome and registration screen with username/business-name fields, terms checkbox and start button. Context returned.
+
+### Main app
+
+- [02 Home — `354:2981`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=354-2981). Dashboard with greeting/date, sales/expense/profit totals, best-selling product charts and recent activity. Context returned.
+- [03 Inventory — `365:3500`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=365-3500). Search/filter controls, categories and stock rows, low-stock/value summaries and product details. Context returned.
+- [04 Expense — `365:3711`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=365-3711). Period selector, expense total/category summaries and expense records. Context returned.
+- [05 Sell — `365:3851`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=365-3851). Period selector, sales total, cash/credit summaries and sale records. Context returned.
+- [06 Menu — `498:334`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=498-334). Home content with a visible menu overlay, profile area and menu items. Context returned; prototype open/close behavior unknown.
+- [07 New_item — `656:490`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=656-490). Item-entry form visible in page overview. Detailed form fields, asset mapping and behavior need reinspection.
+
+### Empty states
+
+- [01 Home_empty — `531:229`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=531-229). Welcome prompt to add products. Context returned.
+- [02 Inventory_empty — `531:616`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=531-616). Empty inventory illustration and add-item CTA. Context returned.
+- [03 Expense_empty — `531:396`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=531-396). Empty expense illustration and register-expense CTA. Context returned on retry.
+- [04 Sell_empty — `531:946`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=531-946). Empty sales illustration and register-sale CTA. Context returned.
+
+### Component set
+
+- [Loading — `333:432`](https://www.figma.com/design/FjVF7z4opM9ZCHGsTVMFmU/Godam-UI-v2.0?node-id=333-432). Component set, 213 × 140, with five variants: `Default` (`333:428`), `Variant2` (`333:433`), `Variant3` (`333:436`), `Variant4` (`333:445`), and `Variant5` (`333:448`). Context returned.
+
+## Design system
+
+### Verified color values from frame-context metadata
+
+- Background `#FBFAF6`; Surface `#FFFFFF`.
+- Primary `#008081`; Primary Hover `#006667`; Primary Active `#004D4D`.
+- Primary Muted `#99D6D6`; Primary Subtle `#E6F5F5`; Border `#E2E0D8`.
+- Text Primary `#1C1A15`; M3 on-surface `#1D1B20`; Text Secondary `#645F50`; Text Muted `#A8A499`.
+- Success `#1C8B5C`; Warning `#B07A1E`; Info `#2E75B6`; Error `#B23D3D`; Neutral `#353535`.
+
+These names/values appeared in returned context metadata. Variable bindings/collections were not inspected; do not assume they are all Figma variables.
+
+### Verified typography references
+
+- Main typeface: Kalameh. Named styles found: H2 Medium 24 px; H3 Regular 20 px; H4 Regular 17 px; Body Large Light 17 px; Body Light 15 px; Body Small Light 13 px; Caption Light 12 px. The Splash title uses Kalameh SemiBold 32 px. Compact labels/navigation use 8–16 px sizes in generated context.
+- Other family references: Leila Bold (headings) and Estedad-VF Regular (registration terms text).
+- Named style metadata reports line height 100% and letter spacing 0. Font files, variable font axes, licensing and complete glyph coverage are unknown.
+
+### Geometry and layout
+
+- **Verified Register dimensions:** inputs 328 × 52 px, radius 16, fill `#E6F5F5`, border `#99D6D6`; primary button 328 × 48 px, radius 16, fill `#008081`.
+- **Context geometry for Inventory navigation:** outer pill 252 × 56 px, radius 32; active area 64 × 48 px, radius 24.
+- **Visual/context estimates:** repeated radii include 4, 8, 12, 16, 24 and 32 px. No canonical spacing scale was returned; code includes fixed frame positions and varied gaps. No explicit shadows appeared in inspected frame code.
+- Home's 1039 px frame exceeds the other screen frames' 852 px height. Whether this represents a scrollable screen or a taller design canvas is unknown.
+
+## RTL, language and formatting
+
+- **Verified:** Arabic-script copy is laid out right-to-left; generated frame code marks text `dir="auto"` and uses right-aligned text in form/content areas. The four tab labels are Home, Inventory, Expenses and Sales, visually ordered right-to-left. Design includes the Afghani symbol `؋` and a date using the month name “سنبله”.
+- **Unknown:** exact locale designation (Dari/Persian), numeral system preferences, calendar/date formatting rules, mixed LTR/RTL behavior, and whether all content must be localized.
+- Do not assume every icon should be mirrored; directional icons need per-asset review.
+
+## Assets, iconography and fonts
+
+Figma contexts expose temporary SVG asset endpoints and layer names. The durable references currently available are the frame IDs above; exact layer IDs for every asset were not captured. Export assets from Figma during implementation and map each export back to its frame/layer and rendered slot.
+
+- Splash `318:200`: decorative `pattern 1`, ellipse artwork, wordmark text, Loading vector variants.
+- Onboarding `333:458`, `344:1939`, `344:2011`: per-screen hero illustration, decorative vector artwork and arrow controls; third-frame mapping unknown.
+- Registration `345:2117`: illustration/group asset.
+- Home `354:2981`: circular chart segments/indicators; Vuesax home, archive, receipt/ticket, notification and menu icons.
+- Inventory `365:3500`: filter/search, category/product, receipt and bottom-navigation icons.
+- Expense `365:3711`: empty-wallet and shop/flash/group/document category icons, receipt and navigation icons.
+- Sell `365:3851`: money/payment, sales/category and navigation icons.
+- Empty states `531:229`, `531:616`, `531:396`, `531:946`: distinct illustrations plus add/register controls.
+- Menu `498:334`: profile, lock, calendar, send/feedback, support/community and close icons.
+- New Item `656:490`: exact assets unknown pending frame context.
+- Fonts to obtain/verify: Kalameh, Leila, Estedad-VF. The repository now contains the three exported Splash SVGs listed above, but no bundled custom fonts.
+
+The generated context includes Code Connect references to Material 3 Design Kit `Building Blocks/status-bar` and `Building Blocks/navigation`. Those Figma library components are not present in this Flutter repository. Other repeated patterns (buttons, fields, bottom nav, filters, cards, empty states) are candidates for Flutter reuse, but their Figma component types/variants are unverified.
+
+## Visible controls and prototype behavior
+
+Visible controls include onboarding arrows, registration fields/checkbox/start button, notification/menu controls, four tab items, period filters, inventory search/filter, and empty-state add/register CTAs. This verifies visual affordances only.
+
+**No prototype transition is verified.** Figma prototype reactions could not be retrieved after the MCP call limit. Screen sequence and CTA destinations must not be inferred from numbering or labels. Menu open/close, tab state preservation, onboarding completion, form validation/save, and data-driven behavior remain unknown.
+
+## Responsive assumptions
+
+- Verified design frame width is 393 px. Most frames are 393 × 852; Home is 393 × 1039.
+- Responsive constraints/breakpoints, smaller-device overflow, text scaling, tablet behavior, system-bar inset treatment and scrolling are unknown.
+- The frames contain Material 3 status/navigation Code Connect references on several screens. Confirm how Android system status and gesture/navigation bars should interact with Flutter safe areas.
+
+## Reinspection checklist
+
+1. Retrieve detailed context and screenshot for `3_Onboard` (`344:2011`) and `07 New_item` (`656:490`).
+2. Retrieve prototype reactions for page `318:177`; record source node, trigger, destination and transition.
+3. Inspect the Loading set plus status bar, navigation, checkbox and repeated controls for actual component/variant metadata.
+4. Inspect variable collections/styles and export a durable asset/font manifest with original layer IDs.
+5. Confirm locale, text formatting, breakpoints, scroll behavior and target Android viewport.
