@@ -1,83 +1,89 @@
-import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
+/// A single-pass linear loading indicator that stays full after completion.
 class AppleLinearProgress extends StatefulWidget {
-  const AppleLinearProgress({super.key, this.height = 6});
+  const AppleLinearProgress({
+    super.key,
+    this.height = 6,
+    this.duration = const Duration(milliseconds: 1800),
+    this.onCompleted,
+  });
 
   final double height;
+  final Duration duration;
+  final VoidCallback? onCompleted;
 
   @override
   State<AppleLinearProgress> createState() => _AppleLinearProgressState();
 }
 
-class _AppleLinearProgressState extends State<AppleLinearProgress> {
-  static const Cubic _ease = Cubic(0.22, 0.61, 0.36, 1);
-
-  final Random _rng = Random();
-  Timer? _timer;
-  double _value = 0.0;
+class _AppleLinearProgressState extends State<AppleLinearProgress>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final CurvedAnimation _animation;
+  bool _completionReported = false;
 
   @override
   void initState() {
     super.initState();
-    _queue();
+    _controller = AnimationController(vsync: this, duration: widget.duration)
+      ..addStatusListener(_handleStatus)
+      ..forward();
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
   }
 
-  void _queue() {
-    _timer?.cancel();
-    if (_value >= 1.0) {
-      _timer = Timer(const Duration(milliseconds: 1400), () {
-        if (!mounted) return;
-        setState(() => _value = 0.0);
-        _timer = Timer(const Duration(milliseconds: 550), _queue);
-      });
-    } else {
-      _timer = Timer(Duration(milliseconds: 280 + _rng.nextInt(441)), () {
-        if (!mounted) return;
-        setState(
-          () => _value = min(1.0, _value + 0.05 + _rng.nextDouble() * 0.11),
-        );
-        _queue();
-      });
+  void _handleStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed || _completionReported) return;
+    _completionReported = true;
+    widget.onCompleted?.call();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduceMotion && !_controller.isCompleted) {
+      _controller.value = 1;
     }
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _animation.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final Color track = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white.withOpacity(0.14)
-        : Colors.black.withOpacity(0.08);
+        ? Colors.white.withValues(alpha: 0.14)
+        : Colors.black.withValues(alpha: 0.08);
     final Color fill = Theme.of(context).colorScheme.primary;
-
-    final bool reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    final Duration duration = reduceMotion
-        ? Duration.zero
-        : const Duration(milliseconds: 450);
 
     return Semantics(
       label: 'Loading',
       child: ClipRRect(
         borderRadius: BorderRadius.circular(widget.height / 2),
-        child: Container(
+        child: SizedBox(
           height: widget.height,
           width: double.infinity,
-          color: track,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: AnimatedFractionallySizedBox(
-              widthFactor: _value,
-              duration: duration,
-              curve: _ease,
-              child: Container(color: fill),
+          child: ColoredBox(
+            color: track,
+            child: AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) => Align(
+                alignment: Alignment.centerLeft,
+                child: FractionallySizedBox(
+                  widthFactor: _animation.value,
+                  child: ColoredBox(color: fill, child: child),
+                ),
+              ),
+              child: SizedBox.expand(),
             ),
           ),
         ),

@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap is a proposal derived from the Figma design. **No UI implementation milestone is approved or started.** Confirm open items in [`DESIGN_SPEC.md`](DESIGN_SPEC.md) and approve the proposal in [`DECISIONS.md`](DECISIONS.md) before implementation.
+This roadmap is a proposal derived from the design. Completed user-authorized screen work is listed separately from remaining proposed milestones. Confirm open items in [`DESIGN_SPEC.md`](DESIGN_SPEC.md) and review pending decisions in [`DECISIONS.md`](DECISIONS.md).
 
 ## Confirmed
 
@@ -13,6 +13,12 @@ This roadmap is a proposal derived from the Figma design. **No UI implementation
 
 - **Acceptance:** Page hierarchy and screen contexts inspected; a blueprint with verified facts, estimates, and unresolved Figma details recorded in `DESIGN_SPEC.md`.
 - **Limitations:** Prototype reactions and individual screenshot review were unavailable after the Figma MCP Starter-plan call limit; detailed context for `3_Onboard` and `07 New_item` is incomplete.
+
+### Splash, onboarding and registration destination — implemented in source, verification pending
+
+- **Scope:** Responsive Splash-to-onboarding startup, three onboarding pages built from supplied local vector assets, and the registration design as the final destination.
+- **Acceptance:** Startup waits for finite progress and optional initialization; responsive layouts use system safe areas and can scroll when needed; Next, Back, Skip, Finish, and swipe work; the animated teal/cream boundary is part of the painted frame.
+- **Verification status:** An earlier analysis/test run found failures in async Splash navigation and onboarding page-control tests. Code and tests were revised afterward, but the final test rerun request was rejected and must still be run. Emulator validation at two sizes is outstanding.
 
 ## Proposed implementation sequence — approval required
 

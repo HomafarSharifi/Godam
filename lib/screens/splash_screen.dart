@@ -1,21 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../widgets/apple_linear_progress.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key, this.dataLoading});
 
   /// Pending startup work, when the caller has data to load.
   ///
-  /// With no future, the indeterminate indicator remains visible by default.
+  /// Without a future, the splash advances after its minimum display time.
   final Future<void>? dataLoading;
 
   static const designFrameKey = ValueKey('splash-design-frame');
-
-  static const _frameWidth = 393.0;
-  static const _frameHeight = 852.0;
+  static const _minimumDisplayTime = Duration(milliseconds: 900);
   static const _background = Color(0xFFFBFAF6);
   static const _textColor = Color(0xFF1C1A15);
 
@@ -29,23 +29,83 @@ class SplashScreen extends StatelessWidget {
   );
 
   @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  Timer? _minimumDisplayTimer;
+  bool _startupWorkComplete = false;
+  bool _minimumDisplayComplete = false;
+  bool _progressComplete = false;
+  bool _navigationStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startupWorkComplete = widget.dataLoading == null;
+    _minimumDisplayTimer = Timer(SplashScreen._minimumDisplayTime, () {
+      _minimumDisplayComplete = true;
+      _advanceWhenReady();
+    });
+    widget.dataLoading?.then<void>(
+      (_) {
+        _startupWorkComplete = true;
+        _advanceWhenReady();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        _startupWorkComplete = true;
+        _advanceWhenReady();
+      },
+    );
+  }
+
+  void _onProgressComplete() {
+    _progressComplete = true;
+    _advanceWhenReady();
+  }
+
+  void _advanceWhenReady() {
+    if (_navigationStarted ||
+        !_startupWorkComplete ||
+        !_minimumDisplayComplete ||
+        !_progressComplete ||
+        !mounted) {
+      return;
+    }
+    _navigationStarted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/onboarding');
+    });
+  }
+
+  @override
+  void dispose() {
+    _minimumDisplayTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: _overlayStyle,
+      value: SplashScreen._overlayStyle,
       child: Scaffold(
-        backgroundColor: _background,
-        body: ColoredBox(
-          color: _background,
-          child: Center(
-            child: FittedBox(
-              fit: BoxFit.contain,
+        backgroundColor: SplashScreen._background,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) => ColoredBox(
+              color: SplashScreen._background,
               child: SizedBox(
-                key: designFrameKey,
-                width: _frameWidth,
-                height: _frameHeight,
+                key: SplashScreen.designFrameKey,
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
                 child: Directionality(
                   textDirection: TextDirection.rtl,
-                  child: _SplashFrame(dataLoading: dataLoading),
+                  child: _SplashFrame(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    onProgressComplete: _onProgressComplete,
+                  ),
                 ),
               ),
             ),
@@ -57,34 +117,39 @@ class SplashScreen extends StatelessWidget {
 }
 
 class _SplashFrame extends StatelessWidget {
-  const _SplashFrame({this.dataLoading});
+  const _SplashFrame({
+    required this.width,
+    required this.height,
+    required this.onProgressComplete,
+  });
 
-  final Future<void>? dataLoading;
-
-  static const _patternWidth = 329.091;
-  static const _patternHeight = 333.934;
+  final double width;
+  final double height;
+  final VoidCallback onProgressComplete;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Positioned(
-          left: (SplashScreen._frameWidth - _patternWidth) / 2 + 0.05,
-          top: (SplashScreen._frameHeight - _patternHeight) / 2 - 6.03,
-          width: _patternWidth,
-          height: _patternHeight,
-          child: SvgPicture.asset(
-            'assets/figma/splash/pattern-1.svg',
-            fit: BoxFit.contain,
-            excludeFromSemantics: true,
+        Positioned.fill(
+          child: Center(
+            child: FractionallySizedBox(
+              widthFactor: 0.84,
+              heightFactor: 0.42,
+              child: SvgPicture.asset(
+                'assets/figma/splash/pattern-1.svg',
+                fit: BoxFit.contain,
+                excludeFromSemantics: true,
+              ),
+            ),
           ),
         ),
         Positioned(
-          left: SplashScreen._frameWidth * 0.1501,
-          right: SplashScreen._frameWidth * 0.1476,
-          top: SplashScreen._frameHeight * 0.338,
-          bottom: SplashScreen._frameHeight * 0.338,
+          left: width * 0.1501,
+          right: width * 0.1476,
+          top: height * 0.338,
+          bottom: height * 0.338,
           child: SvgPicture.asset(
             'assets/figma/splash/ellipse-3.svg',
             fit: BoxFit.contain,
@@ -94,10 +159,10 @@ class _SplashFrame extends StatelessWidget {
         Positioned(
           left: 0,
           right: 0,
-          top: SplashScreen._frameHeight / 2 - 34,
+          top: height * 0.46,
           child: Center(
-            child: SizedBox(
-              width: 173,
+            child: FractionallySizedBox(
+              widthFactor: 0.72,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -131,30 +196,21 @@ class _SplashFrame extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  FutureBuilder<void>(
-                    future: dataLoading,
-                    builder: (context, snapshot) {
-                      final isLoading =
-                          dataLoading == null ||
-                          snapshot.connectionState != ConnectionState.done;
-                      return isLoading
-                          ? Semantics(
-                              key: const ValueKey('splash-loading-indicator'),
-                              label: 'Loading',
-                              liveRegion: true,
-                              child: ExcludeSemantics(
-                                child: SizedBox(
-                                  width: 173,
-                                  height: 6,
-                                  child: AppleLinearProgress(
-                                    key: const ValueKey('splash-loader'),
-                                    height: 6,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(width: 173, height: 6);
-                    },
+                  Semantics(
+                    key: const ValueKey('splash-loading-indicator'),
+                    label: 'Loading',
+                    liveRegion: true,
+                    child: ExcludeSemantics(
+                      child: SizedBox(
+                        width: width * 0.44,
+                        height: 6,
+                        child: AppleLinearProgress(
+                          key: const ValueKey('splash-loader'),
+                          height: 6,
+                          onCompleted: onProgressComplete,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

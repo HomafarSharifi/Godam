@@ -39,6 +39,13 @@ Use for repository tasks involving project inspection, Flutter/Dart implementati
 3. Review `git diff` and status for unintended changes and regressions. Check docs/links when documentation changed.
 4. Update durable project docs only when implementation, decisions, or project status materially changes. Keep `docs/CURRENT_STATE.md` evidence-based and `docs/ROADMAP.md` clear about confirmed requirements versus proposals.
 
+### Local SVG preview without a system renderer
+
+- First use an already installed local renderer (for example, Inkscape, `rsvg-convert`, or CairoSVG); do not install a package just to preview an asset.
+- If none is available but the app already includes `flutter_svg`, render the local SVG in a temporary focused widget test and inspect its generated golden with the image viewer. This needs no public URL or Computer Use.
+- Keep generated previews outside the repository when possible. If Flutter golden tooling writes them into the project, verify the exact generated paths and remove only those temporary files and the temporary test after inspection.
+- Do not crop a full-screen reference SVG to use as an illustration when a dedicated illustration asset exists; preserve the complete screen layout in Flutter.
+
 ### 4. Recover or hand off
 
 If work is interrupted or remains incomplete, update `docs/SESSION_HANDOFF.md` with:

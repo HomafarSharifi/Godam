@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'screens/onboarding_screen.dart';
+import 'screens/registration_screen.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
@@ -7,7 +9,9 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.startupLoading});
+
+  final Future<void>? startupLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: background,
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      home: SplashScreen(dataLoading: startupLoading),
+      routes: {
+        OnboardingScreen.routeName: (_) => const OnboardingScreen(),
+        RegistrationScreen.routeName: (_) => const RegistrationScreen(),
+      },
     );
   }
 }
