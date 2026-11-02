@@ -33,7 +33,21 @@ Record approved decisions separately from proposals. A proposal is not an implem
 
 ## 2026-11-02 — Responsive onboarding and navigation
 
-- **Status:** Implemented per user instruction; final verification pending.
-- **Decision:** Use a responsive three-slide `PageView`, native Next/Back/Skip/Finish controls, RTL content, and a custom-painted full-frame teal/cream background with an animated boundary on slides one and two. Use the supplied individual illustration SVGs without cropping full-screen reference exports. Finish/Skip open the local registration design; its back hit target returns to onboarding.
+- **Status:** Implemented per user instruction; the later page-separation decision below supersedes its initial screen/background implementation. Final verification is pending.
+- **Decision:** The initial implementation used a responsive three-slide `PageView`, native Next/Back/Skip/Finish controls, RTL content, and the custom-painted teal/cream animated boundary on slides one and two. It used the supplied individual illustration SVGs without cropping full-screen reference exports. Finish/Skip opened the local registration design; its back hit target returns to onboarding.
 - **Rationale:** Satisfy requested onboarding behavior and small-screen support while preserving the supplied artwork and keeping the moving color transition within the frame background.
-- **Consequence:** These transitions are implementation choices requested for the app flow, not verified Figma prototype reactions. `/register` is currently an image-based design preview; editable fields, validation, and submission are not implemented. Emulator verification remains outstanding.
+- **Consequence:** These transitions are implementation choices requested for the app flow, not verified Figma prototype reactions. At this decision's original milestone, `/register` was a visual-only preview; that implementation has been superseded by the native form decision below. The earlier choice to show the solid teal third-page background was later superseded by the request to use the animated teal/cream frame consistently on all three pages. Emulator verification remains outstanding.
+
+## 2026-11-02 — Separate onboarding pages and native registration form
+
+- **Status:** Implemented per user instruction; verification pending.
+- **Decision:** Keep `OnboardingScreen` as the PageView/navigation owner, move each page into its own Dart file, and reuse a shared slide layout. Paint the animated teal/cream background on every slide. Implement registration fields, consent checkbox, terms link, and start action as native widgets, using the supplied `fo_onbrd_img.svg` illustration.
+- **Rationale:** Make page edits independent, fix the third page's missing light section, and replace the static registration screenshot with functional Flutter controls.
+- **Consequence:** Start validates the local form and consent but cannot create an account because authentication/backend behavior and the legal terms text are not supplied. A visible message states the service is not connected. The terms link explains that its body is unavailable.
+
+## 2026-11-02 — Explicit Splash initial route
+
+- **Status:** Implemented per high-priority user instruction; verification pending.
+- **Decision:** Set `/` as `MaterialApp.initialRoute` and map it directly to `SplashScreen`; keep the one-pass loader gate before replacing Splash with onboarding.
+- **Rationale:** Make the intended cold-start entry unambiguous while ensuring the loading animation can finish before the route changes.
+- **Consequence:** With no startup future the loader completes after its configured 1.8 second animation; when supplied, the bar stays full until startup work finishes.

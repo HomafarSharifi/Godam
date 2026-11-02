@@ -1,18 +1,18 @@
 # Current state
 
-**Updated:** 2026-11-02. Repository snapshot: branch `main`, HEAD is `c7f1539 Implement splash screen UI`. The local screen SVG bundle is untracked user input. Preserve it and all other changes.
+**Updated:** 2026-11-02. Repository snapshot: branch `main`, HEAD is `841dd38 Implement onboarding screens`. The supplied screen SVG bundle is tracked project input. Preserve it and all other changes.
 
 ## Implemented
 
-- Splash screen based on Figma frame `318:200` and onboarding based on local `1_Onboard.svg`, `2_Onboard.svg`, and `3_Onboard.svg`; see [`DESIGN_SPEC.md`](DESIGN_SPEC.md), `lib/screens/splash_screen.dart`, and `lib/screens/onboarding_screen.dart`.
-- The themed Material app retains Splash as home; onboarding is available via named route `/onboarding` (`lib/main.dart`).
+- Splash screen based on Figma frame `318:200` and onboarding based on local `1_Onboard.svg`, `2_Onboard.svg`, and `3_Onboard.svg`; see [`DESIGN_SPEC.md`](DESIGN_SPEC.md), `lib/screens/splash_screen.dart`, and `lib/screens/onboarding/`.
+- The app explicitly starts with Splash at `/`; it replaces itself with onboarding at `/onboarding` after the loading gate completes (`lib/main.dart`).
 - Splash uses a finite single-pass progress indicator and waits for its completion, optional startup work, and a 900 ms minimum display interval before replacing itself with onboarding.
-- Onboarding uses responsive SafeArea/scrolling layout and a three-page PageView with exact separate illustration assets. Its custom-painted backdrop includes the moving teal/cream boundary (no crop or foreground divider); reduced-motion preferences are honored.
-- Onboarding Next, Back, Skip, Finish, and swipe controls are wired. Skip and Finish open `/register`; registration displays the supplied full-frame SVG with a working back hit target, while its form interactions remain unimplemented.
+- Onboarding uses responsive SafeArea/scrolling layout and a three-page PageView with each page in a separate Dart file and exact separate illustration assets. Its custom-painted backdrop includes the moving teal/cream boundary on all three pages (no crop or foreground divider); reduced-motion preferences are honored. The text group was moved slightly upward.
+- Onboarding Next, Back, Skip, Finish, and swipe controls are wired. Skip and Finish open `/register`. Registration now uses native Flutter fields, checkbox, terms link and start button, plus the supplied `fo_onbrd_img.svg`; field/consent validation and honest disconnected-service feedback are implemented. No authentication or persistence is present.
 - Added the exact available Splash vector exports under `assets/figma/splash/`, registered the asset directory, and declared `flutter_svg` for rendering these SVGs.
 - Registered Kalameh Light (300) and SemiBold (600) from the user-provided TTF assets and applied them to the Splash text.
 - Replaced the static loading SVG in the screen with `AppleLinearProgress` (`lib/widgets/apple_linear_progress.dart`), in a centered 173 × 6 slot and colored from the theme primary. It retains the manually adjusted Splash text and tracks an optional startup `Future<void>`.
-- Replaced the starter counter test with a Splash rendering/widget-structure test (`test/widget_test.dart`).
+- Expanded the starter test suite with Splash, onboarding flow, responsive layout and registration interaction coverage (`test/widget_test.dart`).
 - Flutter platform scaffolding exists for Android, iOS, web, Linux, macOS, and Windows.
 - Continuity documentation exists in the repository root `AGENTS.md`, `docs/`, and `.agents/skills/flutter-project-continuity/SKILL.md`.
 - Kalameh TTF files and license documents are present in the repository. Confirm rights for redistribution in the shipped application.
@@ -25,10 +25,12 @@
 
 ## Verification and limitations
 
+- Figma Register context retrieval was attempted for node `345:2117` but the Figma MCP Starter-plan call limit prevented the request. The local `Register.svg` was rendered with local headless Chrome and used to verify the visible labels, arrangement, colors, field/button geometry, and `fo_onbrd_img.svg` dimensions. Runtime screenshot comparison remains outstanding.
+
 - Local Flutter 3.47.9 / Dart 3.13.7 SDK was found and `flutter pub get --offline` succeeded.
-- The earlier expanded test run passed responsive layout and basic onboarding rendering but exposed failures in startup gating and Next/Back/swipe assertions. Follow-up code and tests address those findings, but the latest test run was not permitted by the command approval review. Do not treat the fixes as runtime-verified.
-- Latest direct `dart analyze` reported `No issues found!` on the source, then exited nonzero because it could not update the user-profile analytics file. The Flutter wrapper `flutter analyze` was not rerun after the latest changes.
-- `dart format` was run on changed Dart files and reported no pending formatting changes; its process then exited with a permission error updating the user-profile analytics file.
+- The widget tests cover initial Splash visibility, Splash-to-onboarding completion, all onboarding pages/background/navigation, registration validation/consent/terms, and compact/tall viewport layouts. A user-run full suite reported two test failures: the Finish case expected an obsolete SVG semantics label, and the terms finder tried to match a substring inside combined rich text. The test now checks native registration widgets, and the terms action is a keyed `InkWell` in a responsive `Wrap`. The focused Flutter rerun in this environment produced no output and was interrupted; direct `dart test` could not resolve `flutter_lints` because the network socket to `pub.dev` was unavailable. These fixes are not runtime-verified here.
+- Latest direct `dart analyze` reported `No issues found!`, then exited nonzero because it could not update the user-profile analytics file. `flutter analyze --no-pub` also remained unresponsive without output and was interrupted.
+- `dart format` formatted the changed Dart files and the final pass reported no pending formatting changes; it exits afterward because the user-profile analytics file is inaccessible.
 - The onboarding SVGs were rendered locally using installed Chrome and a temporary Flutter golden-preview test, then visually inspected. Temporary test/golden files were removed. A Flutter app runtime comparison was not completed.
 - Pixel_7 was listed as an available emulator, but the request to launch it was rejected by the permission review. The app was not launched on the emulator.
 - Figma's exact-frame screenshot endpoint could not be re-queried due the MCP Starter-plan limit. Positioning follows the previously retrieved exact frame context, not a whole-page screenshot.
@@ -37,4 +39,4 @@
 
 ## Next action
 
-When command approval allows it, rerun `flutter analyze` and `flutter test`, address any remaining failures, then launch the app on two emulator sizes and compare Splash/onboarding against the local SVG references. Confirm Kalameh redistribution rights before release. Preserve current untracked SVGs and do not commit or push without authorization.
+Diagnose why Flutter CLI commands remain unresponsive in this environment, then rerun `flutter analyze` and `flutter test`, address any failures, and launch Splash/onboarding/registration on two emulator sizes to compare against local SVG references. Confirm Kalameh redistribution rights before release. Preserve user assets and do not commit or push without authorization.

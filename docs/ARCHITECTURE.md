@@ -3,11 +3,11 @@
 ## Implemented architecture
 
 - `lib/main.dart` calls `runApp`, configures the Material theme, and shows `SplashScreen` from `lib/screens/splash_screen.dart`.
-- `lib/main.dart` exposes `/onboarding` and `/register`, while keeping Splash as the initial route. `MyApp.startupLoading` is an optional hook for essential initialization.
+- `lib/main.dart` explicitly starts at `/`, mapped to `SplashScreen`, and exposes `/onboarding` and `/register`. `MyApp.startupLoading` is an optional hook for essential initialization.
 - `SplashScreen` uses responsive `SafeArea`/`LayoutBuilder` placement for its exact local decorative SVGs, RTL Kalameh copy, and finite `AppleLinearProgress`. It replaces itself with onboarding only after the progress completes, supplied startup work completes (if any), and a 900 ms minimum display interval elapses. A navigation guard prevents duplicate route changes.
-- `OnboardingScreen` uses a responsive three-page `PageView`, dedicated illustration SVGs, native copy/control widgets, vertical scrolling for short viewports, and RTL direction. `OnboardingFrameBackground` paints the full teal/cream background as one animated frame; it is not a foreground divider overlay.
-- `RegistrationScreen` is the final onboarding destination and displays the provided registration SVG responsively. Its form controls remain a visual reference; native entry/validation/submission are not implemented.
-- `test/widget_test.dart` covers loading completion, startup gating, viewport layouts, RTL copy, Next/Back/Skip/Finish and swipe navigation.
+- `OnboardingScreen` owns the responsive three-page `PageView` and navigation state. Each page is a separate widget in `lib/screens/onboarding/`, using `OnboardingSlideFrame` for shared layout, typography and controls. The text group is slightly higher than its prior position. `OnboardingFrameBackground` paints the same animated teal/cream frame for all three pages, including page three.
+- `RegistrationScreen` is built from native responsive Flutter text fields, checkbox, terms link, and start button, using the supplied `fo_onbrd_img.svg` illustration. It validates the required fields and consent; valid submission currently reports that the registration service is not connected. Terms copy/content and actual account creation remain unresolved.
+- `test/widget_test.dart` covers Splash startup, loading completion, viewport layouts, RTL copy, separate onboarding page content, Next/Back/Skip/Finish and swipe navigation, and registration form interactions.
 - `pubspec.yaml` declares Flutter, `cupertino_icons`, `flutter_svg`, Splash SVG assets, and the Kalameh fonts used by this screen. `flutter_test` and `flutter_lints` are development dependencies.
 - `analysis_options.yaml` includes Flutter lints and excludes generated/platform directories.
 - Platform scaffolds exist for Android, iOS, web, Linux, macOS, and Windows; target release platforms are unconfirmed.

@@ -21,13 +21,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Godam',
       debugShowCheckedModeBanner: false,
+      initialRoute: SplashScreen.routeName,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: primary),
         scaffoldBackgroundColor: background,
         useMaterial3: true,
       ),
-      home: SplashScreen(dataLoading: startupLoading),
       routes: {
+        SplashScreen.routeName: (_) =>
+            SplashScreen(dataLoading: startupLoading),
         OnboardingScreen.routeName: (_) => const OnboardingScreen(),
         RegistrationScreen.routeName: (_) => const RegistrationScreen(),
       },

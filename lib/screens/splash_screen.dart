@@ -14,6 +14,7 @@ class SplashScreen extends StatefulWidget {
   /// Without a future, the splash advances after its minimum display time.
   final Future<void>? dataLoading;
 
+  static const routeName = '/';
   static const designFrameKey = ValueKey('splash-design-frame');
   static const _minimumDisplayTime = Duration(milliseconds: 900);
   static const _background = Color(0xFFFBFAF6);
@@ -77,6 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/onboarding');
     });
+    WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   @override

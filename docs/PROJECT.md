@@ -12,7 +12,7 @@ See [`DESIGN_SPEC.md`](DESIGN_SPEC.md) for frame references, verified design det
 
 - Confirmed repository task: provide maintainable project documentation and agent continuity guidance (the user-provided task on 2026-11-01).
 - Confirmed design scope: Figma frames for splash, onboarding, registration, dashboard, inventory, expenses, sales, empty states, menu, and new-item entry.
-- Implemented screens in code: Splash and the first onboarding screen. Product/data/backend behavior remains unconfirmed.
+- Implemented entry-flow screens in code: Splash, three onboarding pages, and a native registration form. Registration submission is not connected to authentication, persistence, or a backend. Product/data behavior beyond these screens remains unconfirmed.
 - Business rules, data contracts, backend, persistence, account/auth behavior, accessibility requirements, and release targets: unknown.
 
 ## Platforms and constraints

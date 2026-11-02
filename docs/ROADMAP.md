@@ -14,11 +14,11 @@ This roadmap is a proposal derived from the design. Completed user-authorized sc
 - **Acceptance:** Page hierarchy and screen contexts inspected; a blueprint with verified facts, estimates, and unresolved Figma details recorded in `DESIGN_SPEC.md`.
 - **Limitations:** Prototype reactions and individual screenshot review were unavailable after the Figma MCP Starter-plan call limit; detailed context for `3_Onboard` and `07 New_item` is incomplete.
 
-### Splash, onboarding and registration destination — implemented in source, verification pending
+### Splash, onboarding and native registration screen — implemented in source, verification pending
 
-- **Scope:** Responsive Splash-to-onboarding startup, three onboarding pages built from supplied local vector assets, and the registration design as the final destination.
-- **Acceptance:** Startup waits for finite progress and optional initialization; responsive layouts use system safe areas and can scroll when needed; Next, Back, Skip, Finish, and swipe work; the animated teal/cream boundary is part of the painted frame.
-- **Verification status:** An earlier analysis/test run found failures in async Splash navigation and onboarding page-control tests. Code and tests were revised afterward, but the final test rerun request was rejected and must still be run. Emulator validation at two sizes is outstanding.
+- **Scope:** Responsive Splash-to-onboarding startup, independently implemented onboarding page files, and a native registration form using the local illustration asset.
+- **Acceptance:** Startup explicitly begins at Splash and waits for finite progress plus optional initialization; all onboarding pages use the integrated animated teal/cream background; responsive layouts use system safe areas and can scroll; Next, Back, Skip, Finish, swipe, form validation, consent checkbox, terms link, and Start feedback work.
+- **Verification status:** Focused tests cover the flow and controls. Run formatting, analysis, tests and runtime checks on two viewport sizes; emulator validation remains outstanding.
 
 ## Proposed implementation sequence — approval required
 

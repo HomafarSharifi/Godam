@@ -22,6 +22,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
+    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(find.byType(OnboardingScreen), findsNothing);
     expect(find.text('گدام'), findsOneWidget);
     expect(find.text('مدیریت هوشمند گدام(انبار) و دکان'), findsOneWidget);
     expect(find.byType(SvgPicture), findsNWidgets(2));
@@ -82,11 +84,17 @@ void main() {
 
     expect(find.byType(SplashScreen), findsOneWidget);
     expect(find.byType(OnboardingScreen), findsNothing);
+    final progressFill = find.descendant(
+      of: find.byKey(const ValueKey('splash-loading-indicator')),
+      matching: find.byType(FractionallySizedBox),
+    );
+    expect(tester.widget<FractionallySizedBox>(progressFill).widthFactor, 1);
 
     startupLoading.complete();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(OnboardingScreen), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -101,6 +109,7 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1900));
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(OnboardingScreen), findsOneWidget);
@@ -173,11 +182,14 @@ void main() {
     await tester.tap(find.byKey(OnboardingScreen.nextButtonKeyFor(0)));
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pump();
-    expect(find.text('سود و ضررت را آسان بفهم!'), findsOneWidget);
     expect(
-      find.byKey(const ValueKey('onboarding-page-status-2')),
-      findsOneWidget,
+      tester
+          .widget<Semantics>(find.byKey(OnboardingScreen.pageStatusKey))
+          .properties
+          .label,
+      'Onboarding page 2 of 3',
     );
+    expect(find.text('سود و ضررت را آسان بفهم!'), findsOneWidget);
 
     await tester.tap(find.byKey(OnboardingScreen.backButtonKeyFor(1)));
     await tester.pump(const Duration(milliseconds: 500));
@@ -186,7 +198,57 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('onboarding can be swiped and Finish opens registration', (
+  testWidgets('onboarding can be swiped to the next page', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: const OnboardingScreen(),
+        routes: {
+          RegistrationScreen.routeName: (_) => const RegistrationScreen(),
+        },
+      ),
+    );
+    await tester.pump();
+
+    final pageView = find.byKey(OnboardingScreen.pageViewKey);
+    final pageStatus = find.byKey(OnboardingScreen.pageStatusKey);
+    await tester.fling(pageView, const Offset(320, 0), 1000);
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump();
+    if (tester.widget<Semantics>(pageStatus).properties.label !=
+        'Onboarding page 2 of 3') {
+      await tester.fling(pageView, const Offset(-320, 0), 1000);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump();
+    }
+    expect(
+      tester.widget<Semantics>(pageStatus).properties.label,
+      'Onboarding page 2 of 3',
+    );
+    expect(find.text('سود و ضررت را آسان بفهم!'), findsOneWidget);
+  });
+
+  testWidgets('third onboarding page keeps the teal and cream frame', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(const MaterialApp(home: OnboardingScreen()));
+    await tester.pump();
+
+    await tester.tap(find.byKey(OnboardingScreen.nextButtonKeyFor(0)));
+    await tester.pump();
+    await tester.tap(find.byKey(OnboardingScreen.nextButtonKeyFor(1)));
+    await tester.pump();
+
+    expect(find.text('حساب‌وکتاب، بدون دردسر!'), findsOneWidget);
+    expect(find.byType(OnboardingFrameBackground), findsOneWidget);
+    expect(find.byType(SvgPicture), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('onboarding Finish opens the registration design', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(393, 852));
@@ -201,19 +263,8 @@ void main() {
     );
     await tester.pump();
 
-    final pageView = find.byKey(OnboardingScreen.pageViewKey);
-    final secondPage = find.byKey(const ValueKey('onboarding-page-status-2'));
-    await tester.drag(pageView, const Offset(320, 0));
-    await tester.pump(const Duration(milliseconds: 600));
+    await tester.tap(find.byKey(OnboardingScreen.nextButtonKeyFor(0)));
     await tester.pump();
-    if (secondPage.evaluate().isEmpty) {
-      await tester.drag(pageView, const Offset(-320, 0));
-      await tester.pump(const Duration(milliseconds: 600));
-      await tester.pump();
-    }
-    expect(secondPage, findsOneWidget);
-    expect(find.text('سود و ضررت را آسان بفهم!'), findsOneWidget);
-
     await tester.tap(find.byKey(OnboardingScreen.nextButtonKeyFor(1)));
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pump();
@@ -223,7 +274,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(RegistrationScreen), findsOneWidget);
-    expect(find.byType(SvgPicture), findsOneWidget);
+    expect(find.text('خوش آمدید'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNWidgets(2));
     expect(tester.takeException(), isNull);
   });
 
@@ -244,5 +296,76 @@ void main() {
 
     expect(find.byType(RegistrationScreen), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('registration is native, validates input and accepts terms', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(const MaterialApp(home: RegistrationScreen()));
+    await tester.pump();
+
+    expect(find.text('خوش آمدید'), findsOneWidget);
+    expect(find.byType(SvgPicture), findsOneWidget);
+    expect(find.byType(TextFormField), findsNWidgets(2));
+    expect(find.text('نام کاربری'), findsOneWidget);
+    expect(find.text('نام دکان/ کسب و کار'), findsOneWidget);
+
+    await tester.tap(find.byKey(RegistrationScreen.startButtonKey));
+    await tester.pump();
+    expect(find.text('این بخش را پر کنید.'), findsNWidgets(2));
+
+    await tester.enterText(
+      find.byKey(RegistrationScreen.usernameFieldKey),
+      'hashim',
+    );
+    await tester.enterText(
+      find.byKey(RegistrationScreen.businessFieldKey),
+      'Godam',
+    );
+    await tester.tap(find.byKey(RegistrationScreen.termsCheckboxKey));
+    await tester.pump();
+    await tester.tap(find.byKey(RegistrationScreen.startButtonKey));
+    await tester.pump();
+
+    expect(
+      find.text('اطلاعات آماده است؛ سرویس ثبت‌نام هنوز وصل نشده است.'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('registration terms link opens its available information', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: RegistrationScreen()));
+    await tester.pump();
+
+    await tester.tap(find.byKey(RegistrationScreen.termsLinkKey));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('متن قوانین و مقررات هنوز در برنامه موجود نیست.'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('registration adapts to compact and tall viewports', (
+    tester,
+  ) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    for (final size in [const Size(320, 568), const Size(432, 932)]) {
+      await tester.binding.setSurfaceSize(size);
+      await tester.pumpWidget(const MaterialApp(home: RegistrationScreen()));
+      await tester.pump();
+
+      expect(tester.takeException(), isNull, reason: '$size viewport');
+      expect(find.byKey(RegistrationScreen.usernameFieldKey), findsOneWidget);
+      expect(find.byKey(RegistrationScreen.businessFieldKey), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
   });
 }

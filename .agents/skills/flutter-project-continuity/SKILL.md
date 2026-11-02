@@ -46,6 +46,14 @@ Use for repository tasks involving project inspection, Flutter/Dart implementati
 - Keep generated previews outside the repository when possible. If Flutter golden tooling writes them into the project, verify the exact generated paths and remove only those temporary files and the temporary test after inspection.
 - Do not crop a full-screen reference SVG to use as an illustration when a dedicated illustration asset exists; preserve the complete screen layout in Flutter.
 
+### Multi-screen onboarding and form follow-through
+
+- For a paged onboarding flow, keep the `PageView` and navigation state in one coordinator, and put each authored page's copy/assets in a separate screen/widget file. Share only the repeated layout/control shell.
+- Keep full-frame animated backgrounds consistent across pages unless a supplied frame verifies a different variant; test the final page explicitly to catch state-dependent missing regions.
+- For a supplied registration SVG, use it as the visual reference, not as the screen widget. Rebuild visible fields, checkboxes, links, and primary actions as native widgets while reusing its dedicated illustration asset. Preserve SVG geometry and copy evidence.
+- Keep the Splash route explicit as the app's cold-start route and test both its initial visibility and the completion gate before verifying the destination screen.
+- Do not report a registration as complete when a backend/terms destination is absent; provide honest local validation/feedback and document the missing integration.
+
 ### 4. Recover or hand off
 
 If work is interrupted or remains incomplete, update `docs/SESSION_HANDOFF.md` with:
