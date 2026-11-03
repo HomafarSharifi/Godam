@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,16 +8,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/apple_linear_progress.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key, this.dataLoading});
+  const SplashScreen({
+    super.key,
+    this.dataLoading,
+  });
 
-  /// Pending startup work, when the caller has data to load.
-  ///
-  /// Without a future, the splash advances after its minimum display time.
   final Future<void>? dataLoading;
 
   static const routeName = '/';
   static const designFrameKey = ValueKey('splash-design-frame');
-  static const _minimumDisplayTime = Duration(milliseconds: 900);
+
+  static const _minimumDisplayTime = Duration(milliseconds: 2500);
   static const _background = Color(0xFFFBFAF6);
   static const _textColor = Color(0xFF1C1A15);
 
@@ -35,6 +37,9 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   Timer? _minimumDisplayTimer;
+
+  final _progressController = AppleLinearProgressController();
+
   bool _startupWorkComplete = false;
   bool _minimumDisplayComplete = false;
   bool _progressComplete = false;
@@ -43,21 +48,42 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+
     _startupWorkComplete = widget.dataLoading == null;
-    _minimumDisplayTimer = Timer(SplashScreen._minimumDisplayTime, () {
-      _minimumDisplayComplete = true;
-      _advanceWhenReady();
-    });
-    widget.dataLoading?.then<void>(
-      (_) {
-        _startupWorkComplete = true;
-        _advanceWhenReady();
-      },
-      onError: (Object error, StackTrace stackTrace) {
-        _startupWorkComplete = true;
+
+    _minimumDisplayTimer = Timer(
+      SplashScreen._minimumDisplayTime,
+      () {
+        _minimumDisplayComplete = true;
         _advanceWhenReady();
       },
     );
+
+    if (widget.dataLoading == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _progressController.start();
+        }
+      });
+    } else {
+      widget.dataLoading!.then<void>(
+        (_) {
+          if (!mounted) return;
+
+          _startupWorkComplete = true;
+          _progressController.start();
+          _advanceWhenReady();
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          if (!mounted) return;
+
+          // Allow the user to continue if startup loading fails.
+          _startupWorkComplete = true;
+          _progressController.start();
+          _advanceWhenReady();
+        },
+      );
+    }
   }
 
   void _onProgressComplete() {
@@ -73,12 +99,14 @@ class _SplashScreenState extends State<SplashScreen> {
         !mounted) {
       return;
     }
+
     _navigationStarted = true;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+
       Navigator.of(context).pushReplacementNamed('/onboarding');
     });
-    WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   @override
@@ -106,6 +134,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: _SplashFrame(
                     width: constraints.maxWidth,
                     height: constraints.maxHeight,
+                    progressController: _progressController,
                     onProgressComplete: _onProgressComplete,
                   ),
                 ),
@@ -122,11 +151,13 @@ class _SplashFrame extends StatelessWidget {
   const _SplashFrame({
     required this.width,
     required this.height,
+    required this.progressController,
     required this.onProgressComplete,
   });
 
   final double width;
   final double height;
+  final AppleLinearProgressController progressController;
   final VoidCallback onProgressComplete;
 
   @override
@@ -208,7 +239,9 @@ class _SplashFrame extends StatelessWidget {
                         height: 6,
                         child: AppleLinearProgress(
                           key: const ValueKey('splash-loader'),
+                          controller: progressController,
                           height: 6,
+                          duration: const Duration(milliseconds: 5000),
                           onCompleted: onProgressComplete,
                         ),
                       ),

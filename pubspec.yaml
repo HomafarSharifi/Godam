@@ -69,7 +69,6 @@ flutter:
 
   assets:
     - assets/figma/splash/
-    - 'assets/ScreenShots/First Time Once Appear/1_Onboard.svg'
     - assets/ScreenShots/illustrations/f_onbrd_img.svg
     - assets/ScreenShots/illustrations/fo_onbrd_img.svg
     - assets/ScreenShots/illustrations/s_onbrd_img.svg

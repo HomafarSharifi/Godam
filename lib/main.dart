@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'screens/onboarding_screen.dart';
 import 'screens/registration_screen.dart';
 import 'screens/splash_screen.dart';
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         SplashScreen.routeName: (_) =>
-            SplashScreen(dataLoading: startupLoading),
+        SplashScreen(dataLoading: startupLoading),
         OnboardingScreen.routeName: (_) => const OnboardingScreen(),
         RegistrationScreen.routeName: (_) => const RegistrationScreen(),
         HomeScreen.routeName: (_) => const HomeScreen(),

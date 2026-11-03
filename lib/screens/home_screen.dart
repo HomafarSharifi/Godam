@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 // Empty state illustration
                 SvgPicture.asset(
-                  'assets/ScreenShots/Empty States/01 Home_empty.svg',
+                  'assets/ScreenShots/illustrations/h_empty_img',
                   width: constraints.maxWidth * 0.6,
                   fit: BoxFit.contain,
                 ),
