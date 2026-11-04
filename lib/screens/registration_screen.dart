@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -9,14 +10,12 @@ class RegistrationScreen extends StatefulWidget {
   static const routeName = '/register';
   static const usernameFieldKey = ValueKey('registration-username');
   static const businessFieldKey = ValueKey('registration-business');
-  static const termsCheckboxKey =
-      ValueKey('registration-terms-checkbox');
+  static const termsCheckboxKey = ValueKey('registration-terms-checkbox');
   static const termsLinkKey = ValueKey('registration-terms-link');
   static const startButtonKey = ValueKey('registration-start-button');
 
   @override
-  State<RegistrationScreen> createState() =>
-      _RegistrationScreenState();
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
@@ -64,9 +63,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         textDirection: TextDirection.rtl,
         child: AlertDialog(
           title: const Text('قوانین و مقررات'),
-          content: const Text(
-            'متن قوانین و مقررات هنوز در برنامه موجود نیست.',
-          ),
+          content: const Text('متن قوانین و مقررات هنوز در برنامه موجود نیست.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -90,7 +87,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (!valid || !_acceptedTerms) return;
 
     // Replace registration with the home screen.
-    Navigator.of(context).pushReplacementNamed('/home');
+    Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
   }
 
   @override
@@ -110,9 +107,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: EdgeInsets.symmetric(
-                      horizontal:
-                          (constraints.maxWidth * 0.084)
-                              .clamp(20.0, 48.0),
+                      horizontal: (constraints.maxWidth * 0.084).clamp(
+                        20.0,
+                        48.0,
+                      ),
                     ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
@@ -123,13 +121,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           key: _formKey,
                           child: Column(
                             children: [
-                              SizedBox(
-                                height: constraints.maxHeight * 0.17,
-                              ),
+                              SizedBox(height: constraints.maxHeight * 0.17),
                               _illustration(constraints.maxWidth),
-                              SizedBox(
-                                height: constraints.maxHeight * 0.05,
-                              ),
+                              SizedBox(height: constraints.maxHeight * 0.05),
                               const Text(
                                 'خوش آمدید',
                                 textAlign: TextAlign.center,
@@ -153,24 +147,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   height: 1.35,
                                 ),
                               ),
-                              SizedBox(
-                                height: constraints.maxHeight * 0.05,
-                              ),
+                              SizedBox(height: constraints.maxHeight * 0.05),
                               _textField(
                                 controller: _usernameController,
                                 key: RegistrationScreen.usernameFieldKey,
                                 hint: 'نام کاربری',
-                                autofillHints: const [
-                                  AutofillHints.username,
-                                ],
+                                autofillHints: const [AutofillHints.username],
                               ),
                               const SizedBox(height: 12),
                               _textField(
                                 controller: _businessController,
                                 key: RegistrationScreen.businessFieldKey,
                                 hint: 'نام دکان/ کسب و کار',
-                                textCapitalization:
-                                    TextCapitalization.words,
+                                textCapitalization: TextCapitalization.words,
                               ),
                               const SizedBox(height: 24),
                               SizedBox(
@@ -183,8 +172,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     backgroundColor: _teal,
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     textStyle: const TextStyle(
                                       fontFamily: 'Kalameh',
@@ -227,8 +215,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap: () =>
-                                Navigator.of(context).maybePop(),
+                            onTap: () => Navigator.of(context).maybePop(),
                             borderRadius: BorderRadius.circular(24),
                           ),
                         ),
@@ -245,8 +232,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Widget _illustration(double maxWidth) {
-    final width =
-        (maxWidth * 0.334).clamp(100.0, 131.0).toDouble();
+    final width = (maxWidth * 0.334).clamp(100.0, 131.0).toDouble();
 
     return SizedBox(
       width: width,
@@ -264,8 +250,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     required Key key,
     required String hint,
     Iterable<String>? autofillHints,
-    TextCapitalization textCapitalization =
-        TextCapitalization.none,
+    TextCapitalization textCapitalization = TextCapitalization.none,
   }) {
     return TextFormField(
       key: key,
@@ -303,16 +288,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: _teal,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: _teal, width: 1.5),
         ),
       ),
       validator: (value) =>
-          value == null || value.trim().isEmpty
-              ? 'این بخش را پر کنید.'
-              : null,
+          value == null || value.trim().isEmpty ? 'این بخش را پر کنید.' : null,
     );
   }
 
@@ -333,8 +313,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             }),
             activeColor: _teal,
             side: const BorderSide(color: _teal, width: 1),
-            materialTapTargetSize:
-                MaterialTapTargetSize.shrinkWrap,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             visualDensity: VisualDensity.compact,
           ),
         ),
@@ -361,10 +340,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
               ),
-              const Text(
-                ' گدام را می پذیرم.',
-                style: _termsTextStyle,
-              ),
+              const Text(' گدام را می پذیرم.', style: _termsTextStyle),
             ],
           ),
         ),

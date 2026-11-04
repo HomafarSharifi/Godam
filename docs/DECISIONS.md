@@ -27,7 +27,7 @@ Record approved decisions separately from proposals. A proposal is not an implem
 ## 2026-11-02 — Splash completion and onboarding entry
 
 - **Status:** Implemented per user instruction.
-- **Decision:** The Splash progress runs once to completion (1.8 s), remains full while an optional startup future is pending, and navigates only after progress, startup work, and a 900 ms minimum display interval complete. With no startup future, it still advances automatically. Startup errors currently release the gate and continue to onboarding.
+- **Decision:** The Splash progress runs once to completion (1.8 s) alongside an optional startup future, remains full while that future is pending, and navigates only after progress, startup work, and a 2500 ms minimum display interval complete. With no startup future, it still advances automatically. Startup errors currently release the gate and continue to onboarding.
 - **Rationale:** Coordinate the visible loader with initialization and prevent an endless Splash when the app has no startup task.
 - **Consequence:** Progress is visual and does not report a real data percentage. Error recovery is not specified.
 

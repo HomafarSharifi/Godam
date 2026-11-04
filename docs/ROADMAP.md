@@ -4,6 +4,13 @@ This roadmap is a proposal derived from the design. Completed user-authorized sc
 
 ## Confirmed
 
+### Empty-state Home shell and tab navigation — implemented 2026-11-04
+
+- **Scope:** Implement the four supplied empty-state frames and right-to-left tab switching within the existing Home route.
+- **Dependencies:** Local full-frame and illustration SVG references; `flutter_svg` and Kalameh were already declared.
+- **Acceptance:** Each of Home, Inventory, Expenses, and Sales renders its frame-specific copy/artwork; the selected tab matches the rendered page; compact and tall viewports avoid layout exceptions. CTA destinations and header-control behavior remain outside this milestone pending evidence.
+- **Status:** Implemented and verified with 16 widget tests and static analysis. Emulator screenshot comparison remains outstanding. Populated tabs and CTA destinations are not included.
+
 ### Establish repository continuity guidance — completed 2026-11-01
 
 - **Acceptance criteria:** Root agent instructions, factual project/architecture/design/current-state/decision/roadmap/handoff documents, and a reusable Flutter project continuity skill are present and cross-linked.

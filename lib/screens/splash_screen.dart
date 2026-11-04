@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,10 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/apple_linear_progress.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({
-    super.key,
-    this.dataLoading,
-  });
+  const SplashScreen({super.key, this.dataLoading});
 
   final Future<void>? dataLoading;
 
@@ -51,27 +47,23 @@ class _SplashScreenState extends State<SplashScreen> {
 
     _startupWorkComplete = widget.dataLoading == null;
 
-    _minimumDisplayTimer = Timer(
-      SplashScreen._minimumDisplayTime,
-      () {
-        _minimumDisplayComplete = true;
-        _advanceWhenReady();
-      },
-    );
+    _minimumDisplayTimer = Timer(SplashScreen._minimumDisplayTime, () {
+      _minimumDisplayComplete = true;
+      _advanceWhenReady();
+    });
 
-    if (widget.dataLoading == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _progressController.start();
-        }
-      });
-    } else {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _progressController.start();
+      }
+    });
+
+    if (widget.dataLoading != null) {
       widget.dataLoading!.then<void>(
         (_) {
           if (!mounted) return;
 
           _startupWorkComplete = true;
-          _progressController.start();
           _advanceWhenReady();
         },
         onError: (Object error, StackTrace stackTrace) {
@@ -79,7 +71,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
           // Allow the user to continue if startup loading fails.
           _startupWorkComplete = true;
-          _progressController.start();
           _advanceWhenReady();
         },
       );
@@ -107,6 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       Navigator.of(context).pushReplacementNamed('/onboarding');
     });
+    WidgetsBinding.instance.scheduleFrame();
   }
 
   @override
@@ -241,7 +233,7 @@ class _SplashFrame extends StatelessWidget {
                           key: const ValueKey('splash-loader'),
                           controller: progressController,
                           height: 6,
-                          duration: const Duration(milliseconds: 5000),
+                          duration: const Duration(milliseconds: 1800),
                           onCompleted: onProgressComplete,
                         ),
                       ),

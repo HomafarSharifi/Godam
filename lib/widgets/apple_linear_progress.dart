@@ -1,11 +1,10 @@
-
 import 'package:flutter/material.dart';
 
 class AppleLinearProgress extends StatefulWidget {
   const AppleLinearProgress({
     super.key,
     this.height = 6,
-    this.duration = const Duration(milliseconds: 5000),
+    this.duration = const Duration(milliseconds: 1800),
     this.onCompleted,
     this.controller,
   });
@@ -16,8 +15,7 @@ class AppleLinearProgress extends StatefulWidget {
   final AppleLinearProgressController? controller;
 
   @override
-  State<AppleLinearProgress> createState() =>
-      _AppleLinearProgressState();
+  State<AppleLinearProgress> createState() => _AppleLinearProgressState();
 }
 
 class AppleLinearProgressController {
@@ -37,10 +35,8 @@ class _AppleLinearProgressState extends State<AppleLinearProgress>
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    )..addStatusListener(_handleStatus);
+    _controller = AnimationController(vsync: this, duration: widget.duration)
+      ..addStatusListener(_handleStatus);
 
     _animation = CurvedAnimation(
       parent: _controller,
@@ -48,6 +44,12 @@ class _AppleLinearProgressState extends State<AppleLinearProgress>
     );
 
     widget.controller?._start = start;
+
+    // Standalone uses should animate automatically. Splash supplies a
+    // controller so it can explicitly coordinate when progress begins.
+    if (widget.controller == null) {
+      _controller.forward();
+    }
   }
 
   void start() {
@@ -120,10 +122,7 @@ class _AppleLinearProgressState extends State<AppleLinearProgress>
                 alignment: Alignment.centerLeft,
                 child: FractionallySizedBox(
                   widthFactor: _animation.value,
-                  child: ColoredBox(
-                    color: fill,
-                    child: child,
-                  ),
+                  child: ColoredBox(color: fill, child: child),
                 ),
               ),
               child: const SizedBox.expand(),

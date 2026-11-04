@@ -1,36 +1,49 @@
 # Session handoff
 
-**Updated:** 2026-11-02
-**Task:** Split onboarding pages, move their text slightly upward, restore the animated background on page three, build the native registration form from the local reference, and guarantee Splash is the explicit cold-start route.
+**Updated:** 2026-11-04
+**Task:** Implement the four reference empty states and functional Home / Inventory / Expenses / Sales tab navigation. The original Home-only handoff below is retained as history; current task status follows it.
 
-## Status
+## Previous Home-only handoff (historical)
 
-The local SVG bundle is user-provided. Existing manual text/asset changes were preserved. Figma context for Register node `345:2117` was blocked by the Starter-plan tool limit; the local Register SVG was rendered with headless Chrome to a temporary PNG outside the repository and visually inspected.
+The Home Empty State screen has been reconstructed using native Flutter widgets matching the reference SVG down to layout order, exact Persian copy, RTL element positioning, and design tokens:
+1. **Header Layout (RTL alignment):**
+   - In RTL, the start of the row is on the screen's right edge. The Hamburger menu (3 horizontal teal lines) is at the start (right edge, matching `x=340..358`).
+   - The Notification bell (36×36 circular `#E6F5F5` container with `#004D4D` bell icon) is at the end (left edge, matching `x=32..68`).
+2. **Body Hierarchy and Exact Copy:**
+   - Decorative illustration: `assets/ScreenShots/illustrations/h_empty_img.svg` (width: 224, height: 214).
+   - Headline: "هنوز آیتمی وجود ندارد" (`#1C1A15`, Kalameh Bold, 18px) positioned above the subtitle.
+   - Subtitle: "برای شروع یک جنس جدید ثبت کنید یا از طریق خریداری وارد کنید" (`#645F50`, Kalameh Regular, 13px, single-line centered) positioned below headline.
+   - CTA button: 159×50, corner radius 16, fill `#008081`. In RTL, text "افزودن جنس" (Kalameh SemiBold, 15px, white) is positioned on the right and the plus icon (`+`, white) is on the left.
+3. **Bottom Navigation Pill (Floating Nav):**
+   - Dimensions: 252×56, corner radius 28, fill `#E6F5F5`, border `#99D6D6` (width 1).
+   - Four tabs in RTL order (from right to left):
+     - Tab 0: "خانه" (Home) — active tab indicator pill (`#99D6D6`, 64×48, r=24), active icon and text `#006667`.
+     - Tab 1: "گدام" (Godam / Inventory) — inactive icon and text `#008081`.
+     - Tab 2: "مصارف" (Expenses) — inactive icon and text `#008081`.
+     - Tab 3: "خریداری" (Purchases) — inactive icon and text `#008081`.
 
-## Changes
+## Previous modified files (historical)
 
-- Replaced the starter counter home with a minimal Material app and `SplashScreen`.
-- Added exact Figma SVG exports `pattern-1.svg`, `ellipse-3.svg`, and `loading-default.svg` in `assets/figma/splash/`.
-- Added `flutter_svg` and asset declaration; replaced counter widget test with a Splash structure/render test.
-- Registered the user-provided Kalameh TTF weights, aligned the custom animated progress bar 12 px below the text, made it respect reduced-motion settings, and added widget tests for its spacing and pending-data duration.
-- `lib/screens/onboarding_screen.dart` owns the three-page `PageView`; page widgets live under `lib/screens/onboarding/` and share `onboarding_slide_frame.dart`. Their text group was moved slightly higher.
-- `lib/widgets/onboarding_frame_background.dart` paints the teal and cream regions together for every onboarding page and animates their shared boundary behind the foreground content.
-- `lib/widgets/apple_linear_progress.dart` performs one finite pass and notifies Splash on completion; Splash waits for it, optional `MyApp.startupLoading`, and a 900 ms minimum before replacing itself with onboarding.
-- Rebuilt `lib/screens/registration_screen.dart` with responsive native fields, consent checkbox, clickable terms link, validation, and start feedback; it uses `fo_onbrd_img.svg`. Authentication/backend registration is not available, and the screen reports that rather than simulating an account creation.
-- `main.dart` now explicitly starts at `/` mapped to Splash, then Splash replaces itself with `/onboarding` after progress and optional initialization complete.
-- Added the new illustration to `pubspec.yaml`. Updated design, architecture, project, current-state, decisions, roadmap, handoff, and private continuity skill documentation.
+- `lib/screens/home_screen.dart`
+- `pubspec.yaml`
+- `docs/SESSION_HANDOFF.md`
 
-## Checks and open items
+## Cross-cutting verification follow-up — 2026-11-04
 
-- Local Flutter 3.47.9 / Dart 3.13.7 was used; `flutter pub get --offline` succeeded.
-- Focused widget tests cover separate onboarding pages, page-three background, native registration validation/consent/link, responsive registration, and Splash startup. The user-reported full test run failed on a stale semantics-label expectation for the old SVG screen and a `find.text` query that could not match a substring inside rich text; the Finish test now asserts native form widgets, and the terms link is a keyed `InkWell` within a responsive `Wrap`. The focused Flutter rerun remained unresponsive without output; direct `dart test` could not resolve `flutter_lints` because the `pub.dev` socket was unavailable. Runtime confirmation is still needed.
-- Direct `dart analyze` found no issues but exited with a user-profile analytics permission error. `flutter analyze --no-pub` and even `flutter --version` remained unresponsive without output and were interrupted. Diagnose the Flutter CLI hang before claiming test or Flutter-analysis success.
-- Local Chrome rendered the exact registration SVG to a temporary reference PNG outside the repository. The actual Flutter screen has not been visually compared at runtime.
-- Pixel_7 was listed as an available emulator, but the prior emulator request was rejected by permission review. No emulator was launched and no runtime screenshot was captured.
-- Test responsive UI at two viewport sizes; existing onboarding viewport coverage targets 320 × 568 and 432 × 932. Add registration viewport coverage if appropriate.
-- Figma prototype transitions are unknown. Current onboarding route behavior is the requested conventional Skip/Back/Next/Finish flow, not a claim about verified Figma reactions. Kalameh redistribution rights should be confirmed before release.
-- No commit or push was made.
+- Splash loader now runs concurrently with optional startup work, completes in 1.8 seconds, remains full until startup work completes, and requests a frame before its post-frame onboarding route replacement. The existing 2500 ms minimum Splash time still applies.
+- The registration widget test supplies the `/home` route and verifies its current route after valid submission; route lookup uses `HomeScreen.routeName`.
+- The existing Home screen's CTA and bottom-navigation labels now scale down within their allotted space to prevent RenderFlex overflows when the registration destination is rendered.
+- `flutter test --no-pub` passed all 14 tests. `flutter analyze --no-pub` reported no issues. Dart formatting completed with no pending changes.
 
-## Next safe action
+## Previous next-safe-action note
 
-Resolve the Flutter CLI hang, then complete `flutter analyze` and `flutter test`, address failures, and run Splash/onboarding/registration at compact and tall emulator sizes when permitted. Compare the native registration layout with the temporary SVG reference. The prior emulator launch was rejected; do not bypass command approval. Confirm Kalameh redistribution rights before release. Do not commit or push without authorization.
+The earlier implementation order below is historical; Inventory, Expenses and Sales empty states are now part of the current Home shell. Do not commit or push without explicit authorization.
+
+## Latest task status — four empty-state tabs
+
+- **Changed for this task:** `lib/screens/home_screen.dart`, new `lib/screens/empty_state_page.dart`, `test/widget_test.dart`, `docs/ARCHITECTURE.md`, `docs/DESIGN_SPEC.md`, `docs/CURRENT_STATE.md`, and `docs/ROADMAP.md`.
+- **Implementation:** Home route hosts four responsive empty-state views in an `IndexedStack`; local dedicated illustrations and exact visible copy are mapped in `DESIGN_SPEC.md`. Bottom tab navigation selects the matching view in RTL order. Menu, notification and CTA destinations remain unknown and unwired.
+- **Pre-existing user changes:** Preserve all previously dirty files, including the existing Splash/onboarding/registration implementation and documentation edits. Do not reset or clean those changes.
+- **Temporary previews:** Generated files `test/_svg_preview_test.dart`, `test/_empty_state_previews/`, and `.tmp_empty_state_preview/` were removed after inspection.
+- **Checks:** `dart format lib/screens/home_screen.dart lib/screens/empty_state_page.dart test/widget_test.dart` completed; `flutter test --no-pub` passed all 16 tests; `flutter analyze --no-pub` reported no issues; `git diff --check` passed. The first test attempt caught an incompatible ButtonStyle constructor property; it was fixed using the SDK-compatible `FilledButton.styleFrom` before the successful suite.
+- **Next safe action:** If requested, implement populated Home, Inventory, Expenses and Sales screens from their own references. Confirm destination requirements before connecting the empty-state CTAs or the header menu/notification. Compare on emulator when available. Do not commit or push.

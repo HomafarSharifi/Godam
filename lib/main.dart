@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'screens/onboarding_screen.dart';
-import 'screens/registration_screen.dart';
-import 'screens/splash_screen.dart';
-import 'screens/home_screen.dart';
+import 'package:godam/screens/home_screen.dart';
+import 'package:godam/screens/onboarding_screen.dart';
+import 'package:godam/screens/registration_screen.dart';
+import 'package:godam/screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         SplashScreen.routeName: (_) =>
-        SplashScreen(dataLoading: startupLoading),
+            SplashScreen(dataLoading: startupLoading),
         OnboardingScreen.routeName: (_) => const OnboardingScreen(),
         RegistrationScreen.routeName: (_) => const RegistrationScreen(),
         HomeScreen.routeName: (_) => const HomeScreen(),

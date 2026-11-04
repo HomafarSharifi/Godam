@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:godam/main.dart';
+import 'package:godam/screens/home_screen.dart';
 import 'package:godam/screens/onboarding_screen.dart';
 import 'package:godam/screens/registration_screen.dart';
 import 'package:godam/screens/splash_screen.dart';
@@ -95,6 +96,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump();
 
     expect(find.byType(OnboardingScreen), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -110,6 +113,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1900));
     await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(OnboardingScreen), findsOneWidget);
@@ -303,7 +308,12 @@ void main() {
   ) async {
     await tester.binding.setSurfaceSize(const Size(393, 852));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(const MaterialApp(home: RegistrationScreen()));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: const RegistrationScreen(),
+        routes: {HomeScreen.routeName: (_) => const HomeScreen()},
+      ),
+    );
     await tester.pump();
 
     expect(find.text('خوش آمدید'), findsOneWidget);
@@ -328,11 +338,14 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(RegistrationScreen.startButtonKey));
     await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(
-      find.text('اطلاعات آماده است؛ سرویس ثبت‌نام هنوز وصل نشده است.'),
-      findsOneWidget,
-    );
+    final homeFinder = find.byType(HomeScreen, skipOffstage: false);
+    final homeContext = tester.element(homeFinder);
+    final homeRoute = ModalRoute.of(homeContext);
+    expect(homeFinder, findsOneWidget);
+    expect(homeRoute?.settings.name, HomeScreen.routeName);
+    expect(homeRoute?.isCurrent, isTrue);
     expect(tester.takeException(), isNull);
   });
 
@@ -365,6 +378,65 @@ void main() {
       expect(tester.takeException(), isNull, reason: '$size viewport');
       expect(find.byKey(RegistrationScreen.usernameFieldKey), findsOneWidget);
       expect(find.byKey(RegistrationScreen.businessFieldKey), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('home tabs open their matching reference empty states', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pump();
+
+    const titles = [
+      'خوش آمدید به گدام',
+      'گدام شما خالیه!',
+      'هنوز مصرفی ثبت نشده',
+      'چیزی فروخته نشده!',
+    ];
+    const labels = ['خانه', 'انبار', 'مصارف', 'فروش'];
+    const illustrations = ['home', 'inventory', 'expenses', 'sales'];
+
+    for (var index = 0; index < titles.length; index++) {
+      await tester.tap(find.byKey(HomeScreen.tabKey(index)));
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.text(titles[index]), findsOneWidget);
+      expect(
+        find.byKey(
+          ValueKey('empty-state-illustration-${illustrations[index]}'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .widget<Semantics>(find.byKey(HomeScreen.tabKey(index)))
+            .properties
+            .selected,
+        isTrue,
+        reason: '${labels[index]} should be marked selected',
+      );
+      expect(tester.takeException(), isNull);
+    }
+
+    expect(find.text('همین حالا اولین فروش تان را ثبت کنید.'), findsOneWidget);
+  });
+
+  testWidgets('home tabs stay within compact and tall viewports', (
+    tester,
+  ) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    for (final size in [const Size(320, 568), const Size(432, 932)]) {
+      await tester.binding.setSurfaceSize(size);
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pump();
+
+      expect(find.text('خوش آمدید به گدام'), findsOneWidget);
+      expect(find.byKey(HomeScreen.bottomNavigationKey), findsOneWidget);
+      expect(tester.takeException(), isNull, reason: '$size viewport');
       await tester.pumpWidget(const SizedBox.shrink());
     }
   });
