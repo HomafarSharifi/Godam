@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import 'empty_state_page.dart';
 
 /// Main shell for the four reference empty states.
-///
 /// Tabs are ordered right to left: Home, Inventory, Expenses, Sales.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,12 +26,16 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _pillBorder = Color(0xFF99D6D6);
   static const _kalameh = 'Kalameh';
 
-  static const _tabs = <_TabData>[
-    _TabData('خانه', Icons.home_outlined, Icons.home_rounded),
-    _TabData('انبار', Icons.inventory_2_outlined, Icons.inventory_2_rounded),
-    _TabData('مصارف', Icons.receipt_long_outlined, Icons.receipt_long_rounded),
-    _TabData('فروش', Icons.shopping_bag_outlined, Icons.shopping_bag_rounded),
-  ];
+static const _tabs = <_TabData>[
+  _TabData('خانه', 'assets/Icons/Navigation bar/Outline_home.svg',
+      'assets/Icons/Navigation bar/Filled_home.svg'),
+  _TabData('انبار', 'assets/Icons/Navigation bar/Outline_inventory.svg',
+      'assets/Icons/Navigation bar/Filled_inventory.svg'),
+  _TabData('مصارف', 'assets/Icons/Navigation bar/Outline_expense.svg',
+      'assets/Icons/Navigation bar/Filled_expense.svg'),
+  _TabData('فروش', 'assets/Icons/Navigation bar/Outline_sell.svg',
+      'assets/Icons/Navigation bar/Filled_sell.svg'),
+];
 
   int _selectedTab = 0;
 
@@ -144,7 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
           final slotWidth = width / _tabs.length;
           final activeWidth = (slotWidth + 1).clamp(48.0, 64.0);
           final activeLeft =
-              width - 4 - activeWidth - (_selectedTab * slotWidth);
+    (width - 4 - activeWidth - (_selectedTab * slotWidth))
+        .clamp(0.0, width - activeWidth)
+        .toDouble();
 
           return SizedBox(
             key: HomeScreen.bottomNavigationKey,
@@ -187,42 +192,72 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTab(int index, double slotWidth) {
-    final tab = _tabs[index];
-    final selected = _selectedTab == index;
-    return SizedBox(
-      width: slotWidth,
-      height: 56,
-      child: Semantics(
-        key: HomeScreen.tabKey(index),
-        button: true,
-        selected: selected,
-        label: tab.label,
-        child: InkWell(
-          onTap: () => setState(() => _selectedTab = index),
-          borderRadius: BorderRadius.circular(24),
-          child: ExcludeSemantics(
+ Widget _buildTab(int index, double slotWidth) {
+  final tab = _tabs[index];
+  final selected = _selectedTab == index;
+
+  return SizedBox(
+    width: slotWidth,
+    height: 56,
+    child: Semantics(
+      key: HomeScreen.tabKey(index),
+      button: true,
+      selected: selected,
+      label: tab.label,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedTab = index;
+          });
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: ExcludeSemantics(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 4,
+              horizontal: 2,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  selected ? tab.selectedIcon : tab.icon,
-                  size: 22,
-                  color: selected ? _activeText : _primary,
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: SvgPicture.asset(
+                    selected ? tab.selectedIcon : tab.icon,
+                    fit: BoxFit.contain,
+                    placeholderBuilder: (_) => const SizedBox(
+                      width: 22,
+                      height: 22,
+                    ),
+                    errorBuilder: (context, error, stackTrace) {
+                      debugPrint(
+                        'Failed to load navigation SVG: '
+                        '${selected ? tab.selectedIcon : tab.icon}',
+                      );
+                      debugPrint('$error');
+
+                      return const Icon(
+                        Icons.error_outline,
+                        size: 20,
+                        color: Colors.red,
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(height: 2),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    tab.label,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontFamily: _kalameh,
-                      fontSize: 10,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w300,
-                      color: selected ? _activeText : _primary,
-                    ),
+                Text(
+                  tab.label,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    fontFamily: _kalameh,
+                    fontSize: 10,
+                    fontWeight:
+                        selected ? FontWeight.w600 : FontWeight.w300,
+                    color: selected ? _activeText : _primary,
                   ),
                 ),
               ],
@@ -230,14 +265,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _TabData {
   const _TabData(this.label, this.icon, this.selectedIcon);
 
   final String label;
-  final IconData icon;
-  final IconData selectedIcon;
+  final String icon;
+  final String selectedIcon;
 }
