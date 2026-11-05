@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'empty_state_page.dart';
 
 /// Main shell for the four reference empty states.
@@ -9,8 +11,11 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static const routeName = '/home';
-  static const bottomNavigationKey = ValueKey('home-bottom-navigation');
-  static ValueKey<String> tabKey(int index) => ValueKey('home-tab-$index');
+  static const bottomNavigationKey =
+      ValueKey('home-bottom-navigation');
+
+  static ValueKey<String> tabKey(int index) =>
+      ValueKey('home-tab-$index');
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -26,16 +31,28 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _pillBorder = Color(0xFF99D6D6);
   static const _kalameh = 'Kalameh';
 
-static const _tabs = <_TabData>[
-  _TabData('خانه', 'assets/Icons/Navigation bar/Outline_home.svg',
-      'assets/Icons/Navigation bar/Filled_home.svg'),
-  _TabData('انبار', 'assets/Icons/Navigation bar/Outline_inventory.svg',
-      'assets/Icons/Navigation bar/Filled_inventory.svg'),
-  _TabData('مصارف', 'assets/Icons/Navigation bar/Outline_expense.svg',
-      'assets/Icons/Navigation bar/Filled_expense.svg'),
-  _TabData('فروش', 'assets/Icons/Navigation bar/Outline_sell.svg',
-      'assets/Icons/Navigation bar/Filled_sell.svg'),
-];
+  static const _tabs = <_TabData>[
+    _TabData(
+      'خانه',
+      'assets/Icons/Navigation bar/Outline_home.svg',
+      'assets/Icons/Navigation bar/Filled_home.svg',
+    ),
+    _TabData(
+      'انبار',
+      'assets/Icons/Navigation bar/Outline_inventory.svg',
+      'assets/Icons/Navigation bar/Filled_inventory.svg',
+    ),
+    _TabData(
+      'مصارف',
+      'assets/Icons/Navigation bar/Outline_expense.svg',
+      'assets/Icons/Navigation bar/Filled_expense.svg',
+    ),
+    _TabData(
+      'فروش',
+      'assets/Icons/Navigation bar/Outline_sell.svg',
+      'assets/Icons/Navigation bar/Filled_sell.svg',
+    ),
+  ];
 
   int _selectedTab = 0;
 
@@ -79,63 +96,68 @@ static const _tabs = <_TabData>[
     );
   }
 
-  Widget _buildHeader() {
-    return SizedBox(
-      height: 120,
-      child: Align(
-        alignment: const Alignment(0, 0.433),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Row(
-            children: [
-              _buildMenuMark(),
-              const Spacer(),
-              _buildNotificationMark(),
-            ],
-          ),
+Widget _buildHeader() {
+  return Container(
+    height: 120,
+    color: _header, // White background across the header
+    child: Align(
+      alignment: const Alignment(0, 0.5),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Row(
+          children: [
+            _buildMenuMark(),
+            const Spacer(),
+            _buildNotificationMark(),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildMenuMark() {
-    return SizedBox(
-      width: 24,
-      height: 24,
+Widget _buildMenuMark() {
+  return InkWell(
+    onTap: () {
+    },
+    child: SizedBox(
+      width: 40,
+      height: 40,
       child: Center(
-        child: SizedBox(
-          width: 20,
-          height: 14,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              3,
-              (_) => Container(
-                height: 1.5,
-                decoration: BoxDecoration(
-                  color: _primary,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ),
-          ),
+        child: SvgPicture.asset(
+          'assets/Icons/Menu/menu.svg',
+          width: 24,
+          height: 24,
+          fit: BoxFit.contain,
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildNotificationMark() {
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: const BoxDecoration(color: _pillFill, shape: BoxShape.circle),
-      child: const Icon(
-        Icons.notifications_none_rounded,
-        color: _primaryDark,
-        size: 20,
+  return Material(
+    color: _pillFill,
+    shape: const CircleBorder(),
+    child: InkWell(
+      onTap: () {
+      },
+      customBorder: const CircleBorder(),
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: Center(
+          child: SvgPicture.asset(
+            'assets/Icons/Menu/bell.svg',
+            width: 24,
+            height: 24,
+            fit: BoxFit.contain,
+          ),
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildBottomNavigation() {
     return Center(
@@ -144,12 +166,17 @@ static const _tabs = <_TabData>[
           final width = constraints.maxWidth < 284
               ? constraints.maxWidth - 32
               : 252.0;
-          final slotWidth = width / _tabs.length;
-          final activeWidth = (slotWidth + 1).clamp(48.0, 64.0);
+
+          // Four equal slots occupy the available bar width.
+          final slotWidth = width  / _tabs.length;
+
+          const activeWidth = 54.0;
+          const activeHeight = 48.0;
+
           final activeLeft =
-    (width - 4 - activeWidth - (_selectedTab * slotWidth))
-        .clamp(0.0, width - activeWidth)
-        .toDouble();
+              width -
+              (( _selectedTab + 1) * slotWidth) +
+              (slotWidth - activeWidth) / 2;
 
           return SizedBox(
             key: HomeScreen.bottomNavigationKey,
@@ -167,9 +194,9 @@ static const _tabs = <_TabData>[
                     duration: const Duration(milliseconds: 180),
                     curve: Curves.easeOut,
                     left: activeLeft,
-                    top: 4,
+                    top: (56 - activeHeight) / 2,
                     width: activeWidth,
-                    height: 48,
+                    height: activeHeight,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: _pillBorder,
@@ -177,6 +204,8 @@ static const _tabs = <_TabData>[
                       ),
                     ),
                   ),
+
+                  // Each tab occupies exactly one equal slot.
                   Row(
                     children: List.generate(
                       _tabs.length,
@@ -192,82 +221,83 @@ static const _tabs = <_TabData>[
     );
   }
 
- Widget _buildTab(int index, double slotWidth) {
-  final tab = _tabs[index];
-  final selected = _selectedTab == index;
+  Widget _buildTab(int index, double slotWidth) {
+    final tab = _tabs[index];
+    final selected = _selectedTab == index;
 
-  return SizedBox(
-    width: slotWidth,
-    height: 56,
-    child: Semantics(
-      key: HomeScreen.tabKey(index),
-      button: true,
-      selected: selected,
-      label: tab.label,
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            _selectedTab = index;
-          });
-        },
-        borderRadius: BorderRadius.circular(24),
-        child: ExcludeSemantics(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 4,
-              horizontal: 2,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: SvgPicture.asset(
-                    selected ? tab.selectedIcon : tab.icon,
-                    fit: BoxFit.contain,
-                    placeholderBuilder: (_) => const SizedBox(
-                      width: 22,
-                      height: 22,
+    return SizedBox(
+      width: slotWidth,
+      height: 56,
+      child: Semantics(
+        key: HomeScreen.tabKey(index),
+        button: true,
+        selected: selected,
+        label: tab.label,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _selectedTab = index;
+            });
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: ExcludeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 4,
+                horizontal: 2,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: SvgPicture.asset(
+                      selected ? tab.selectedIcon : tab.icon,
+                      fit: BoxFit.contain,
+                      placeholderBuilder: (_) => const SizedBox(
+                        width: 22,
+                        height: 22,
+                      ),
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint(
+                          'Failed to load navigation SVG: '
+                          '${selected ? tab.selectedIcon : tab.icon}',
+                        );
+                        debugPrint('$error');
+
+                        return const Icon(
+                          Icons.error_outline,
+                          size: 20,
+                          color: Colors.red,
+                        );
+                      },
                     ),
-                    errorBuilder: (context, error, stackTrace) {
-                      debugPrint(
-                        'Failed to load navigation SVG: '
-                        '${selected ? tab.selectedIcon : tab.icon}',
-                      );
-                      debugPrint('$error');
-
-                      return const Icon(
-                        Icons.error_outline,
-                        size: 20,
-                        color: Colors.red,
-                      );
-                    },
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  tab.label,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.clip,
-                  style: TextStyle(
-                    fontFamily: _kalameh,
-                    fontSize: 10,
-                    fontWeight:
-                        selected ? FontWeight.w600 : FontWeight.w300,
-                    color: selected ? _activeText : _primary,
+                  const SizedBox(height: 2),
+                  Text(
+                    tab.label,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.clip,
+                    style: TextStyle(
+                      fontFamily: _kalameh,
+                      fontSize: 10,
+                      fontWeight: selected
+                          ? FontWeight.w600
+                          : FontWeight.w300,
+                      color: selected ? _activeText : _primary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _TabData {
